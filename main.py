@@ -14,7 +14,7 @@ dictt = [None, None, {
 		"хорошо":[["понятно..."], ["*", "плохо", "хорошо"], {
 			"ага":[["конец..."], "end", {}],
 		}],
-		"плохо":[["хреново...", "а у нее?"], ["*", "плохо", "плохо"], {
+		"плохо":[["хреново..."], ["*", "плохо", "плохо"], {
 			"агась":[["конец..."], "end", {}],
 		}]
 	}]
@@ -38,38 +38,26 @@ def on_message(message):
 
 	user_name = database[user_id][1]
 	user_queue = database[user_id][0]
-	print(user_queue)
+	
 
-	pos = dictt[2]
-	ch = False
+	pos = dictt
 	for i in user_queue:
-		print(pos); print("\n\n")
-		pos = pos[i]
-		ch = True
-	if ch:
 		pos = pos[2]
-
-	# print(pos)
-
-	keys = pos.keys()
-
-	print(keys)
-
-	for i in keys:
-		max_value = 0
+		pos = pos[i]
+	pos = pos[2]
+	# print(pos, pos.keys())
+	max_value = 0
+	for i in pos.keys():
 		if string_compare(i, text) > max_value:
 			max_value = string_compare(i, text)
 			max_object = i
-
-	user_queue.append(max_object)
+	# print(pos, max_object)
 	pos = pos[max_object]
-
 	for i in pos[0]:
 		bot.send_message(message.chat.id, i)
 
 	database[user_id][0] = pos[1]
-
-
+	print(user_queue)
 
 
 
