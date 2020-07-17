@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import telebot
+import telebot, gdata
 
 TOKEN = "1352428807:AAEWMRagiUzg9cMiygyjHsixGZyPWwR4gzk"
 
@@ -26,12 +26,16 @@ dictt = [None, None, {
 def string_compare(first_string, second_string):
 	return float(first_string == second_string)
 
-database = {}
+
+@bot.message_handler(commands=["start"])
+def on_start(message):
+	pass
 
 @bot.message_handler(func=lambda message: True)
 def on_message(message):
+	database = gdata.load()
 	text = message.text
-	user_id = message.from_user.id
+	user_id = str(message.from_user.id)
 
 	if not(user_id) in database:
 		database.update({user_id:[[], "Мистер X"]})
@@ -58,6 +62,7 @@ def on_message(message):
 
 	database[user_id][0] = pos[1]
 	print(user_queue)
+	gdata.update(database)
 
 
 
