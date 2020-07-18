@@ -1,7 +1,8 @@
 from collections import Counter
 import operator
 import math
-
+from gdata import loadCorpus
+import gdata
 
 def tokenize(doc):
     words = [word.replace(',', '').lower() for word in doc.split()]
@@ -90,7 +91,13 @@ check_str3 = "Ехал тортик через реку"
 # --------------------- Основной код --------------------
 
 tf_idf_total = []
-corpus = (str1, str2, str3, str4)
+print("starting_pos1")
+corpusdb = loadCorpus()
+print("pos2")
+corpus = []
+for i in corpusdb:
+    corpus.extend(corpusdb[i]["headlines"])
+print("pos3")
 terms = build_terms(corpus)
 
 for document in corpus:
@@ -107,3 +114,11 @@ for query in queries:
     query_tfidf = build_tfidf(corpus, query, terms)
     for index, document in enumerate(tf_idf_total):
         print("Similarity with DOC", index, "=", cosine_similarity(query_tfidf, document))
+
+
+
+
+
+
+
+
