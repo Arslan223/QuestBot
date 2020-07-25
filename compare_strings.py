@@ -1,124 +1,36 @@
-from collections import Counter
-import operator
-import math
-from gdata import loadCorpus
-import gdata
 
-def tokenize(doc):
-    words = [word.replace(',', '').lower() for word in doc.split()]
-    return words
+import json
+import requests
 
+# 1. Get your authentication token
+# by posting username and password to the server
 
-def build_terms(corpus):
-    terms = {}
-    current_index = 0
-    for doc in corpus:
-        for word in tokenize(doc):
-            if word not in terms:
-                terms[word] = current_index
-                current_index += 1
-    return terms
+r = requests.post('http://paraphraser.ru/token/',
+                  data={'login': 'user', 'password': '12345678'})
+token = r.json().get('token', '')
 
+# 2. Make a request using the obtained token
 
-def tf(document, terms):
-    words = tokenize(document)
-    total_words = len(words)
-    doc_counter = Counter(words)
-    for word in doc_counter:
-        # Можно и не делить, а оставить как есть, с частотой
-        doc_counter[word] /= total_words
-    tfs = [0 for _ in range(len(terms))]
-    for term, index in terms.items():
-        tfs[index] = doc_counter[term]
-    return tfs
+payload = {'c': 'syns',
+           'query': 'кот ест рыбку',
+           'top': 3,
+           'scores': 0,
+           'forms': 0,
+           'format': 'json',
+           'lang': 'ru',
+           'token': token}
+
+r = requests.post('http://paraphraser.ru/api/',
+                  data=payload)
+result = r.json()
 
 
-def _count_docs_with_word(word, docs):
-    counter = 1
-    for doc in docs:
-        if word in doc:
-            counter += 1
-    return counter
+if result['code'] == 0:
+    response = result['response']
 
+    for item in response:
+        for value in response[item]['syns']:
+            print(value)
 
-# documents - это корпус
-def idf(documents, terms):
-    idfs = [0 for _ in range(len(terms))]
-    total_docs = len(documents)
-    for word, index in terms.items():
-        docs_with_word = _count_docs_with_word(word, documents)
-        # Основание логарифма не важно
-        # Боюсь отрицательныз значений, только положительные
-        idf = 1 + math.log10(total_docs / docs_with_word)
-        idfs[index] = idf
-    return idfs
-
-
-def _merge_td_idf(tf, idf, terms):
-    return [tf[i] * idf[i] for i in range(len(terms))]
-
-
-def build_tfidf(corpus, document, terms):
-    doc_tf = tf(document, terms)
-    doc_idf = idf(corpus, terms)
-    return _merge_td_idf(doc_tf, doc_idf, terms)
-
-
-def cosine_similarity(vec1, vec2):
-    # Целиком отсюда: http://stackoverflow.com/questions/18424228/cosine-similarity-between-2-number-lists
-    def dot_product2(v1, v2):
-        return sum(map(operator.mul, v1, v2))
-
-    def vector_cos5(v1, v2):
-        prod = dot_product2(v1, v2)
-        len1 = math.sqrt(dot_product2(v1, v1))
-        len2 = math.sqrt(dot_product2(v2, v2))
-        return prod / (len1 * len2)
-
-    return vector_cos5(vec1, vec2)
-
-
-str1 = "Я люблю тортики больше, чем яблоки"
-str2 = "Я уважаю апельсины больше, чем торты"
-str3 = "Яблочные сады раскинулись над дорогой"
-str4 = "Ехал Грека через реку"
-
-# Проверочные документы
-check_str1 = "Тортики делают из муки, апельсины и воды"
-check_str2 = "Торты исчезли там, где появился я"
-check_str3 = "Ехал тортик через реку"
-
-# --------------------- Основной код --------------------
-
-tf_idf_total = []
-print("starting_pos1")
-corpusdb = loadCorpus()
-print("pos2")
-corpus = []
-for i in corpusdb:
-    corpus.extend(corpusdb[i]["headlines"])
-print("pos3")
-terms = build_terms(corpus)
-
-for document in corpus:
-    tf_idf_total.append(build_tfidf(corpus, document, terms))
-
-print(terms.keys())
-for doc_rating in tf_idf_total:
-    print(doc_rating)
-
-
-queries = (check_str1, check_str2, check_str3)
-for query in queries:
-    print("QUERY:", query)
-    query_tfidf = build_tfidf(corpus, query, terms)
-    for index, document in enumerate(tf_idf_total):
-        print("Similarity with DOC", index, "=", cosine_similarity(query_tfidf, document))
-
-
-
-
-
-
-
-
+else:
+    print('Error:', result['msg'])
