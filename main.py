@@ -31,6 +31,20 @@ def find_answer(text, keys):
 def string_compare(first_string, second_string):
 	return getSim(first_string, second_string)
 
+def send_message(chat_id, message_text):
+	if message_text.startswith("$file="):
+		file_id = message_text[6:]
+		message = bot.send_document(chat_id, file_id)
+	elif message_text.startswith("$photo="):
+		file_id = message_text[7:]
+		message = bot.send_photo(chat_id, file_id)
+	elif message_text.startswith("$video="):
+		file_id = message_text[7:]
+		message = bot.send_photo(chat_id, file_id)
+	else:
+		message = bot.send_message(chat_id, message_text)
+	return message
+
 
 @bot.message_handler(commands=["start"])
 def on_start(message):
@@ -47,8 +61,16 @@ def on_message(message):
 
 	user_name = database[user_id][1]
 	user_queue = database[user_id][0]
+
+	passage = find_passage(user_queue)
+
+	output = list(map(str, str(passage["text"]).split("\n")))
+
+	for text in output:
+		send_message(user_id, text)
+
 	
-	
+
 
 
 
