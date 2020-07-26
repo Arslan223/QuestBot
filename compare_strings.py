@@ -27,6 +27,8 @@ def getSim(string1, string2, lang='ru', login='arslan2233', password='qwer2004')
         arr = []
         for i in response:
             arr.append(response[i]['sim']['score'])
+        if arr == []:
+            arr.append(0)
         print(string1, string2, max(arr))
         return max(arr)
 
