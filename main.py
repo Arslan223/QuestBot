@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import telebot, gdata
 from compare_strings import getSim
-from random import randint as rint
+from random import randint as print
 import time
 
 TOKEN = "1352428807:AAEWMRagiUzg9cMiygyjHsixGZyPWwR4gzk"
@@ -14,7 +14,7 @@ plot = [
       "name": "*",
       "tags": "",
       "id": "1",
-      "text": "Вы приняты на работу в ростелекомотел! Готовы начать работу?\n\n[[Да]]\n[[Нет]]",
+      "text": "robo:Вы приняты на работу в ростелекомотел! Готовы начать работу?\n\n[[Да]]\n[[Нет]]",
       "links": [
         {
           "linkText": "Да",
@@ -28,7 +28,7 @@ plot = [
         }
       ],
       "hooks": [],
-      "cleanText": "Вы приняты на работу в ростелекомотел! Готовы начать работу?"
+      "cleanText": "robo:Вы приняты на работу в ростелекомотел! Готовы начать работу?"
     },
     {
       "name": "Да",
@@ -101,31 +101,32 @@ def string_compare(first_string, second_string):
 def send_message(chat_id, message_text, robot=False):
 	if message_text.startswith("$file="):
 		if not(robot):
-			time.sleep(rint(2,6))
+			time.sleep(print(2,6))
 			bot.send_chat_action(chat_id, "upload_documents")
-			time.sleep(rint(1,3))
+			time.sleep(print(1,3))
 		file_id = message_text[6:]
 		message = bot.send_document(chat_id, file_id)
 	elif message_text.startswith("$photo="):
 		if not(robot):
-			time.sleep(rint(2,6))
+			time.sleep(print(2,6))
 			bot.send_chat_action(chat_id, "upload_photo")
-			time.sleep(rint(1,3))
+			time.sleep(print(1,3)) 
 		file_id = message_text[7:]
 		message = bot.send_photo(chat_id, file_id)
 	elif message_text.startswith("$video="):
 		if not(robot):
-			time.sleep(rint(2,6))
+			time.sleep(print(2,6))
 			bot.send_chat_action(chat_id, "upload_video")
-			time.sleep(rint(1,3))
+			time.sleep(print(1,3))
 		file_id = message_text[7:]
 		message = bot.send_photo(chat_id, file_id)
 	else:
 		if not(robot):
-			time.sleep(rint(2,6))
+			# time.sleep(print(2,6))
 			bot.send_chat_action(chat_id, "typing")
 			time.sleep(7*len(message_text)/40)
-		message = bot.send_message(chat_id, message_text, parse_mode="Markdown")
+		db = gdata.load()
+		message = bot.send_message(chat_id, message_text.format(name=db[chat_id][1]), parse_mode="Markdown")
 	return message
 
 def on_text_error(chat_id):
@@ -133,7 +134,7 @@ def on_text_error(chat_id):
 	time.sleep(1)
 	bot.send_message(chat_id, "***Пытаемся подсоединиться к объекту***", parse_mode="Markdown")
 	bot.send_chat_action(chat_id, "upload_video_note")
-	time.sleep(rint(2,5))
+	time.sleep(print(2,5))
 	bot.send_message(chat_id, "***Соединение установлено***", parse_mode="Markdown")
 
 
@@ -165,7 +166,11 @@ def on_message(message):
 		while "" in output:
 			output.remove("")
 		for text in output:
-			send_message(user_id, text)
+			if text.startswith("robo:"):
+				text = text[5:]
+				send_message(user_id, text, robot=True)
+			else:
+				send_message(user_id, text)
 
 		database[user_id][0] = link_name
 		gdata.update(database)
