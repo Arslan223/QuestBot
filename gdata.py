@@ -6,10 +6,10 @@ def load():
 
 def update(obj):
 	with open("data.json", "w") as f:
-		json.dump(obj, f)
+		json.dump(obj, f, ensure_ascii=False)
 
 def loadCorpus():
-	with open("ParaPhraserPlus.json", "r", encoding="utf-8") as f:
+	with open("corpus.json", "r", encoding="utf-8") as f:
 		return json.load(f)
 
 def updateCorpus(obj):

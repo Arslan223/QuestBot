@@ -1,30 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import telebot, gdata
+from compare_strings import getSim
 
 TOKEN = "1352428807:AAEWMRagiUzg9cMiygyjHsixGZyPWwR4gzk"
 
 bot = telebot.TeleBot(TOKEN) # инициализация бота
-[["*", ["Привет! Как дела у тебя?"], [[["Нормально", "хорошо", "отлично"], ["это круто, да"], []]]]]
 
-dictt = [None, None, {
-"*":[["Привет! Как дела у тебя?"], ["*"], {
-	"нормально":[["Это очень хорошо!"], ["*", "плохо"], {}],
-	"плохо":[["хреново...", "а у нее?"], ["*", "плохо"], {
-		"хорошо":[["понятно..."], ["*", "плохо", "хорошо"], {
-			"ага":[["конец..."], "end", {}],
-		}],
-		"плохо":[["хреново..."], ["*", "плохо", "плохо"], {
-			"агась":[["конец..."], "end", {}],
-		}]
-	}]
-}]
-}]
+plot = []
+
 
 #["плохо"][2]
 
+def find_passage(passage_name):
+	for passage in plot:
+		if passage["name"] == passage_name:
+			return passage
+
 def string_compare(first_string, second_string):
-	return float(first_string == second_string)
+	return getSim(first_string, second_string)
 
 
 @bot.message_handler(commands=["start"])
@@ -38,7 +32,7 @@ def on_message(message):
 	user_id = str(message.from_user.id)
 
 	if not(user_id) in database:
-		database.update({user_id:[[], "Мистер X"]})
+		database.update({user_id:["Начало", "Мистер X"]})
 
 	user_name = database[user_id][1]
 	user_queue = database[user_id][0]
@@ -52,10 +46,13 @@ def on_message(message):
 	# print(pos, pos.keys())
 	max_value = 0
 	for i in pos.keys():
-		if string_compare(i, text) > max_value:
+		if i == "*":
+			max_value = 1.1
+			max_object = i
+		elif string_compare(i, text) > max_value:
 			max_value = string_compare(i, text)
 			max_object = i
-	# print(pos, max_object)
+	# print(pos, max_object) 
 	pos = pos[max_object]
 	for i in pos[0]:
 		bot.send_message(message.chat.id, i)
