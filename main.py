@@ -17,6 +17,17 @@ def find_passage(passage_name):
 		if passage["name"] == passage_name:
 			return passage
 
+def find_answer(text, keys):
+	max_value = 0
+	for i in keys:
+		if i == "*":
+			max_value = 1.1
+			max_object = i
+		elif string_compare(i, text) > max_value:
+			max_value = string_compare(i, text)
+			max_object = i
+	return max_object
+
 def string_compare(first_string, second_string):
 	return getSim(first_string, second_string)
 
@@ -37,29 +48,7 @@ def on_message(message):
 	user_name = database[user_id][1]
 	user_queue = database[user_id][0]
 	
-
-	pos = dictt
-	for i in user_queue:
-		pos = pos[2]
-		pos = pos[i]
-	pos = pos[2]
-	# print(pos, pos.keys())
-	max_value = 0
-	for i in pos.keys():
-		if i == "*":
-			max_value = 1.1
-			max_object = i
-		elif string_compare(i, text) > max_value:
-			max_value = string_compare(i, text)
-			max_object = i
-	# print(pos, max_object) 
-	pos = pos[max_object]
-	for i in pos[0]:
-		bot.send_message(message.chat.id, i)
-
-	database[user_id][0] = pos[1]
-	print(user_queue)
-	gdata.update(database)
+	
 
 
 
