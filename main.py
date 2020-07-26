@@ -145,6 +145,8 @@ def on_message(message):
 
 	if not(user_id) in database:
 		database.update({user_id:["Начало", "Мистер X"]})
+		gdata.update(database)
+		database = gdata.load()
 
 	user_name = database[user_id][1]
 	user_queue = database[user_id][0]
