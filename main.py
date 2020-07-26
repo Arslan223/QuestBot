@@ -85,7 +85,7 @@ def find_answer(text, links):
 	for link in links:
 		link_text = link["linkText"]
 		passage_name = link["passageName"]
-		if link_text == "*":
+		if link_text in ["*", "/start"]:
 			max_value = 1.1
 			max_text = link_text
 			max_pname = passage_name
@@ -136,11 +136,6 @@ def on_text_error(chat_id):
 	bot.send_chat_action(chat_id, "upload_video_note")
 	time.sleep(print(2,5))
 	bot.send_message(chat_id, "***Соединение установлено***", parse_mode="Markdown")
-
-
-@bot.message_handler(commands=["start"])
-def on_start(message):
-	pass
 
 @bot.message_handler(func=lambda message: True)
 def on_message(message):
