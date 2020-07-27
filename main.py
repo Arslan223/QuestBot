@@ -2,74 +2,18 @@
 # -*- coding: utf-8 -*-
 import telebot, gdata
 from compare_strings import getSim
-from random import randint as print
+from random import randint as rint
+from Plot import _plot
+
 import time
 
 TOKEN = "1352428807:AAEWMRagiUzg9cMiygyjHsixGZyPWwR4gzk"
 
 bot = telebot.TeleBot(TOKEN) # инициализация бота
 
-plot = [
-    {
-      "name": "*",
-      "tags": "",
-      "id": "1",
-      "text": "robo:Вы приняты на работу в ростелекомотел! Готовы начать работу?\n\n[[Да]]\n[[Нет]]",
-      "links": [
-        {
-          "linkText": "Да",
-          "passageName": "Да",
-          "original": "[[Да]]"
-        },
-        {
-          "linkText": "Нет",
-          "passageName": "Нет",
-          "original": "[[Нет]]"
-        }
-      ],
-      "hooks": [],
-      "cleanText": "robo:Вы приняты на работу в ростелекомотел! Готовы начать работу?"
-    },
-    {
-      "name": "Да",
-      "tags": "",
-      "id": "2",
-      "text": "вц\nвув\nвув\nа\n[[Нет]]",
-      "links": [
-        {
-          "linkText": "Нет",
-          "passageName": "Нет",
-          "original": "[[Нет]]"
-        }
-      ],
-      "hooks": [],
-      "cleanText": "вц\nвув\nвув\nа"
-    },
-    {
-      "name": "Нет",
-      "tags": "",
-      "id": "3",
-      "text": "Вы были убиты...\nСпасибо за участие в нашей компании",
-      "links": [],
-      "hooks": [],
-      "cleanText": "Вы были убиты...\nСпасибо за участие в нашей компании"
-    },
-    {
-      "name": "Начало",
-      "tags": "",
-      "id": "4",
-      "text": "[[*]]",
-      "links": [
-        {
-          "linkText": "*",
-          "passageName": "*",
-          "original": "[[*]]"
-        }
-      ],
-      "hooks": [],
-      "cleanText": ""
-    }
-  ]
+
+plot = _plot
+plot = plot["passages"]
 
 
 #["плохо"][2]
@@ -83,8 +27,7 @@ def find_answer(text, links):
 	max_value = 0
 	max_pname = None
 	for link in links:
-		link_text = link["linkText"]
-		passage_name = link["passageName"]
+		link_text, passage_name = map(str, link["linkText"].split("|"))
 		if link_text in ["*", "/start"]:
 			max_value = 1.1
 			max_text = link_text
@@ -99,10 +42,15 @@ def string_compare(first_string, second_string):
 	return getSim(first_string, second_string)
 
 def send_message(chat_id, message_text, robot=False):
-	if message_text.startswith("$file="):
+	if message_text.startswith("reconnect"):
+		bot.send_chat_action(chat_id, "upload_documents")
+		time.sleep(rint(1,4))
+	if message_text.startswith("time"):
+		time.sleep(rint(2,5))
+	elif message_text.startswith("$file="):
 		if not(robot):
 			time.sleep(print(2,6))
-			bot.send_chat_action(chat_id, "upload_documents")
+			bot.send_chat_action(chat_id, "upload_document")
 			time.sleep(print(1,3))
 		file_id = message_text[6:]
 		message = bot.send_document(chat_id, file_id)
@@ -168,7 +116,8 @@ def on_message(message):
 				send_message(user_id, text, robot=True)
 			else:
 				send_message(user_id, text)
-
+		if "полиция" in tags:
+			send_message(user_id, "robo:*Система автоматического определения контекста зафиксировала просьбу о вызове службы спасения*\n\n_Подтведите вызов(Вызвать/Это ошибка)..._")
 		database[user_id][0] = link_name
 		gdata.update(database)
 	else:
