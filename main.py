@@ -36,6 +36,8 @@ def find_answer(text, links):
 			max_value = string_compare(link_text, text)
 			max_text = link_text
 			max_pname = passage_name
+	if link_text == "~" and not(max_pname):
+		max_pname = passage_name
 	return max_pname
 
 def string_compare(first_string, second_string):
@@ -89,48 +91,66 @@ def on_text_error(chat_id):
 
 @bot.message_handler(func=lambda message: True)
 def on_message(message):
-	database = gdata.load()
-	text = message.text
-	user_id = str(message.from_user.id)
-
-	if not(user_id) in database:
-		database.update({user_id:["Начало", "Мистер X"]})
-		gdata.update(database)
-		database = gdata.load()
-
-	user_name = database[user_id][1]
-	user_queue = database[user_id][0]
-
-	passage = find_passage(user_queue)
-	links = passage["links"]
-
-	link_name = find_answer(message.text, links)
-	if link_name:
-		passage = find_passage(link_name)
-		output = list(map(str, str(passage["cleanText"]).split("\n")))
-		tags = passage["tags"]
-		links = passage["links"]
-		if "подключение" in tags:
-			send_message(user_id, "Идёт подключение...", robot=True)
-			send_message(user_id, "reconnect")
-			send_message(user_id, "Подключено.\n_Код сессии:_ `{code}`".format(code=rint(1000000, 10000000)), robot=True)
-		while "" in output:
-			output.remove("")
-		for text in output:
-			if text.startswith("robo:"):
-				text = text[5:]
-				send_message(user_id, text, robot=True)
-			else:
-				send_message(user_id, text)
-		if "полиция" in tags:
-			send_message(user_id, "*Система автоматического определения контекста зафиксировала просьбу о вызове службы спасения*\n\n_Подтведите вызов(Вызвать/Это ошибка)..._", robot=True)
-		database[user_id][0] = link_name
-		gdata.update(database)
+	if message.chat.id in busylist:
+		pass
 	else:
-		on_text_error(user_id)
+		busylist.append(message.chat.id)
+		database = gdata.load()
+		text = message.text
+		user_id = str(message.from_user.id)
 
+		if not(user_id) in database:
+			database.update({user_id:["Начало", "Мистер X", 3000]})
+			gdata.update(database)
+			database = gdata.load()
 
-bot.polling()
+		user_name = database[user_id][1]
+		user_queue = database[user_id][0]
+
+		passage = find_passage(user_queue)
+		links = passage["links"]
+
+		link_name = find_answer(message.text, links)
+		if link_name:
+			passage = find_passage(link_name)
+			output = list(map(str, str(passage["cleanText"]).split("\n")))
+			tags = passage["tags"]
+			links = passage["links"]
+			if "подключение" in tags:
+				send_message(user_id, "Идёт подключение...", robot=True)
+				send_message(user_id, "reconnect")
+				send_message(user_id, "Подключено.\n_Код сессии:_ `{code}`".format(code=rint(1000000, 10000000)), robot=True)
+			if "удача" in tags:
+				db = gdata.load()
+				db[user_id][2] += 1000
+				gdata.update(db)
+			if "неудача" in tags:
+				db = gdata.load()
+				db[user_id][2] -= 1500
+				gdata.update(db)
+			if "конецобъекта" in tags:
+				db = gdata.load()
+				send_message(user_id, "*На вашем счету:* `{0}` _E-Coin_".format(db[user_id][2]), robot=True)
+			while "" in output:
+				output.remove("")
+			for text in output:
+				if text.startswith("robo:"):
+					text = text[5:]
+					send_message(user_id, text, robot=True)
+				else:
+					send_message(user_id, text)
+			if "полиция" in tags:
+				send_message(user_id, "*Система автоматического определения контекста зафиксировала просьбу о вызове службы спасения*\n\n_Подтведите вызов(Вызвать/Это ошибка)..._", robot=True)
+			database[user_id][0] = link_name
+			gdata.update(database)
+		else:
+			on_text_error(user_id)
+		busylist.remove(message.chat.id)
+
+if __name__ == "__main__":
+	global busylist
+	busylist = []
+	bot.polling()
 
 
 
