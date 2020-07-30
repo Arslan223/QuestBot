@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import telebot, gdata
-from compare_strings import getSim
+from compare_strings import getSimAlt as getSim
 from random import randint as rint
 from Plot import _plot
 
@@ -109,6 +109,8 @@ def on_message(message):
 
 		passage = find_passage(user_queue)
 		links = passage["links"]
+
+		bot.send_chat_action(user_id, "upload_document")
 
 		link_name = find_answer(message.text, links)
 		if link_name:
