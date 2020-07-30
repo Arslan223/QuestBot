@@ -55,7 +55,7 @@ def getSimAlt(string1, string2):
         return 1
     else:
         try:
-            url = 'https://app.zenscrape.com/api/v1/get'
+            url = 'http://api.cortical.io:80/rest/compare?retina_name=en_associative'
             print(str1, str2)
             headers = { 
                 "apikey": "4906eb60-d247-11ea-a6e2-f50806965103"
