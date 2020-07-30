@@ -4,6 +4,7 @@ import telebot, gdata
 from compare_strings import getSimAlt as getSim
 from random import randint as rint
 from Plot import _plot
+from telebot import types
 
 import time
 
@@ -105,7 +106,7 @@ def on_message(message):
 		user_id = str(message.from_user.id)
 
 		if not(user_id) in database:
-			database.update({user_id:["Начало", "Мистер X", 3000]})
+			database.update({user_id:["Начало", "Мистер X", 3000, 0]})
 			gdata.update(database)
 			database = gdata.load()
 
@@ -138,8 +139,7 @@ def on_message(message):
 				gdata.update(db)
 			database = gdata.load()
 			if "конецобъекта" in tags:
-				db = gdata.load()
-				send_message(user_id, "*На вашем счету:* `{0}` _E-Coin_".format(db[user_id][2]), robot=True)
+				send_message(user_id, "*На вашем счету:* `{0}` _E-Coin_".format(database[user_id][2]), robot=True)
 			while "" in output:
 				output.remove("")
 			for text in output:
@@ -150,6 +150,13 @@ def on_message(message):
 					send_message(user_id, text)
 			if "полиция" in tags:
 				send_message(user_id, "*Система автоматического определения контекста зафиксировала просьбу о вызове службы спасения*\n\n_Подтведите вызов(Вызвать/Это ошибка)..._", robot=True)
+			if "клавиатура" in tags:
+				markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+				for link in links:
+					link_text, passage_name = map(str, link["linkText"].split("|"))
+					markup.row(types.KeyboardButton(link_text))
+
+				bot.send_message(user_id, "$%#@%^&", reply_markup=markup)
 			database[user_id][0] = link_name
 			gdata.update(database)
 		else:
