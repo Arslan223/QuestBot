@@ -28,16 +28,21 @@ def find_answer(text, links):
 	max_pname = None
 	for link in links:
 		link_text, passage_name = map(str, link["linkText"].split("|"))
+		strc = string_compare(link_text, text)
 		if link_text in ["*", "/start"]:
 			max_value = 1.1
 			max_text = link_text
 			max_pname = passage_name
-		elif string_compare(link_text, text) > max_value:
-			max_value = string_compare(link_text, text)
+		elif strc > max_value:
+			max_value = strc
 			max_text = link_text
 			max_pname = passage_name
+			if max_value == 1:
+				break
+
 	if link_text == "~" and not(max_pname):
 		max_pname = passage_name
+
 	return max_pname
 
 def string_compare(first_string, second_string):
@@ -45,7 +50,7 @@ def string_compare(first_string, second_string):
 
 def send_message(chat_id, message_text, robot=False):
 	if "reconnect" in message_text:
-		bot.send_chat_action(chat_id, "upload_document")
+		bot.send_chat_action(chat_id, "upload_video")
 		time.sleep(rint(1,4))
 		message = None
 	elif message_text.startswith("time"):
@@ -110,7 +115,7 @@ def on_message(message):
 		passage = find_passage(user_queue)
 		links = passage["links"]
 
-		bot.send_chat_action(user_id, "upload_document")
+		bot.send_chat_action(user_id, "upload_video")
 
 		link_name = find_answer(message.text, links)
 		if link_name:
@@ -124,12 +129,14 @@ def on_message(message):
 				send_message(user_id, "Подключено.\n_Код сессии:_ `{code}`".format(code=rint(1000000, 10000000)), robot=True)
 			if "удача" in tags:
 				db = gdata.load()
-				db[user_id][2] += 1000
+				db[user_id][2] = db[user_id][2] + 1000
+				print(db)
 				gdata.update(db)
 			if "неудача" in tags:
 				db = gdata.load()
-				db[user_id][2] -= 1500
+				db[user_id][2] = db[user_id][2] + 1000
 				gdata.update(db)
+			database = gdata.load()
 			if "конецобъекта" in tags:
 				db = gdata.load()
 				send_message(user_id, "*На вашем счету:* `{0}` _E-Coin_".format(db[user_id][2]), robot=True)
@@ -152,7 +159,7 @@ def on_message(message):
 if __name__ == "__main__":
 	global busylist
 	busylist = []
-	bot.polling()
+	bot.polling(none_stop = True)
 
 
 
