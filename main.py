@@ -40,9 +40,9 @@ def find_answer(text, links):
 			max_pname = passage_name
 			if max_value == 1:
 				break
-
-	if link_text == "~" and not(max_pname):
-		max_pname = passage_name
+	if links:
+		if link_text == "~" and not(max_pname):
+			max_pname = passage_name
 
 	return max_pname
 
