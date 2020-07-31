@@ -190,6 +190,8 @@ if __name__ == "__main__":
 		try:
 			bot.polling()
 		except Exception as e:
+			if e == KeyboardInterrupt:
+				break
 			print(e)
 			bot.send_message(316490607, e)
 			time.sleep(15)
