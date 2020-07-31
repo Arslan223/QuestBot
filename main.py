@@ -188,7 +188,7 @@ if __name__ == "__main__":
 	busylist = []
 	while True:
 		try:
-			bot.polling(none_stop = True)
+			bot.polling()
 		except Exception as e:
 			print(e)
 			bot.send_message(316490607, e)
