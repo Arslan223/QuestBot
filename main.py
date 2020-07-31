@@ -185,7 +185,8 @@ def on_message(message):
 if __name__ == "__main__":
 	global busylist
 	busylist = []
-	bot.polling()
+	try:
+		bot.polling()
 	except Exception as e:
 		print(e)
 		bot.send_message(316490607, e)
