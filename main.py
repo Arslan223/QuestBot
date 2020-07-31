@@ -117,7 +117,6 @@ def on_message(message):
 		links = passage["links"]
 
 		txt = message.text
-		bot.send_chat_action(user_id, "upload_video")
 		if "выбор" in passage["tags"]:
 			db = gdata.load()
 			res = db[user_id][3]
@@ -186,16 +185,10 @@ def on_message(message):
 if __name__ == "__main__":
 	global busylist
 	busylist = []
-	while True:
-		try:
-			bot.polling()
-		except Exception as e:
-			if e == KeyboardInterrupt:
-				break
-			print(e)
-			bot.send_message(316490607, e)
-			time.sleep(15)
-
+	bot.polling()
+	except Exception as e:
+		print(e)
+		bot.send_message(316490607, e)
 
 
 
