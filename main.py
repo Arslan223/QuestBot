@@ -116,9 +116,16 @@ def on_message(message):
 		passage = find_passage(user_queue)
 		links = passage["links"]
 
+		txt = message.text
 		bot.send_chat_action(user_id, "upload_video")
-
-		link_name = find_answer(message.text, links)
+		if "выбор" in passage["tags"]:
+			db = gdata.load()
+			res = db[user_id][3]
+			if res > 0:
+				txt = "справедливость"
+			else:
+				txt = "рациональность"
+		link_name = find_answer(txt, links)
 		if link_name:
 			passage = find_passage(link_name)
 			output = list(map(str, str(passage["cleanText"]).split("\n")))
@@ -128,6 +135,16 @@ def on_message(message):
 				send_message(user_id, "Идёт подключение...", robot=True)
 				send_message(user_id, "reconnect")
 				send_message(user_id, "Подключено.\n_Код сессии:_ `{code}`".format(code=rint(1000000, 10000000)), robot=True)
+			if "справедливость" in tags:
+				db = gdata.load()
+				db[user_id][3] = db[user_id][3] + 1
+				print(db)
+				gdata.update(db)
+			if "рациональность" in tags:
+				db = gdata.load()
+				db[user_id][3] = db[user_id][3] - 1
+				print(db)
+				gdata.update(db)
 			if "удача" in tags:
 				db = gdata.load()
 				db[user_id][2] = db[user_id][2] + 1000
@@ -135,7 +152,7 @@ def on_message(message):
 				gdata.update(db)
 			if "неудача" in tags:
 				db = gdata.load()
-				db[user_id][2] = db[user_id][2] + 1000
+				db[user_id][2] = db[user_id][2] - 1000
 				gdata.update(db)
 			database = gdata.load()
 			if "конецобъекта" in tags:
@@ -157,7 +174,10 @@ def on_message(message):
 					markup.row(types.KeyboardButton(link_text))
 
 				bot.send_message(user_id, "$%#@%^&", reply_markup=markup)
-			database[user_id][0] = link_name
+			if "концовка" in tags:
+				database.pop(user_id)
+			else:
+				database[user_id][0] = link_name
 			gdata.update(database)
 		else:
 			on_text_error(user_id)
@@ -166,7 +186,13 @@ def on_message(message):
 if __name__ == "__main__":
 	global busylist
 	busylist = []
-	bot.polling(none_stop = True)
+	while True:
+		try:
+			bot.polling(none_stop = True)
+		except Exception as e:
+			print(e)
+			bot.send_message(316490607, e)
+			time.sleep(15)
 
 
 
