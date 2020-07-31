@@ -1,4 +1,4 @@
-_plot = v{
+_plot = {
   "uuid": "733BC088-7EB5-4E7B-B8B3-7EB99A1CFB2E",
   "name": "Project 19-21",
   "creator": "Twine",
