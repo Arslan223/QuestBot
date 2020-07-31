@@ -152,7 +152,7 @@ def on_message(message):
 				gdata.update(db)
 			if "неудача" in tags:
 				db = gdata.load()
-				db[user_id][2] = db[user_id][2] - 1000
+				db[user_id][2] = db[user_id][2] - 2000
 				gdata.update(db)
 			database = gdata.load()
 			if "конецобъекта" in tags:
